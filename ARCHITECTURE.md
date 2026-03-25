@@ -1,0 +1,74 @@
+# Architecture
+
+## Overview
+
+SoundLevel is a client-side single-page application. There is no backend and no server-side rendering. Vite is only used as the development server and production bundler.
+
+## Runtime Flow
+
+1. `index.html` loads the application shell and `src/main.js`.
+2. `main.js` initializes the particle system, mascot controller, canvases, and UI event handlers.
+3. When the user starts listening, `audio.js` requests microphone access and creates a Web Audio `AnalyserNode`.
+4. The animation loop in `main.js` reads the current audio level, smooths it, resolves the active zone, and updates the meter, mascot, history chart, and streak counters.
+5. Thresholds and best streak values are persisted in `localStorage`.
+
+## Modules
+
+### `src/main.js`
+
+- Owns UI state and DOM wiring
+- Starts and stops audio capture
+- Applies threshold settings
+- Updates the sound meter and history canvas
+- Tracks streaks and milestone celebrations
+- Handles settings dropdown interaction and keyboard dismissal
+
+### `src/audio.js`
+
+- Requests microphone access
+- Creates and manages the `AudioContext`
+- Reads time-domain data from the analyser
+- Converts RMS values into a normalized 0-100 level
+
+### `src/zones.js`
+
+- Defines the four sound zones
+- Stores threshold boundaries and styling metadata
+- Exposes helpers for zone lookup and random feedback messages
+
+### `src/mascot.js`
+
+- Maps logical mascot states to CSS classes
+- Updates mascot speech text with a small transition
+- Runs periodic blinking behavior
+
+### `src/particles.js`
+
+- Renders ambient background particles
+- Renders burst particles for streak milestones
+- Resizes the full-screen particle canvas with the viewport
+
+## State Persistence
+
+- `soundlevel_thresholds`: Saved threshold values for the three configurable boundaries
+- `soundlevel_best_streak`: Saved best streak across sessions
+
+## Rendering Model
+
+- The sound meter and history chart are drawn on `<canvas>` elements.
+- The rest of the interface is DOM-driven and styled through CSS custom properties.
+- Zone changes propagate through both JS state and `data-*` attributes for CSS-based theming.
+
+## Accessibility
+
+- Semantic sections and header structure in `index.html`
+- `aria-live` regions for dynamic status updates
+- `aria-expanded` and Escape handling for the settings panel
+- Visible `:focus-visible` styles
+- Reduced-motion support through CSS and milestone-particle suppression
+
+## Operational Constraints
+
+- The app only works in secure browser contexts that allow microphone access.
+- Audio processing happens entirely in the browser and does not leave the device.
+- The current validation workflow is build-based; there is no unit or E2E test automation yet.
