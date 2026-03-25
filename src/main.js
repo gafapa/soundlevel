@@ -1,16 +1,21 @@
 /**
  * Main application controller.
- * Orchestrates audio, zones, mascot, particles, meter, and history.
+ * Orchestrates audio, zones, mascot, particles, history, i18n, and PWA setup.
  */
 
 import { startListening, stopListening, getLevel } from './audio.js';
+import { getZone, isIdealZone, setThresholds, getZonesInOrder } from './zones.js';
 import {
-  getZone,
-  getRandomMessage,
-  isIdealZone,
-  setThresholds,
-  getZonesInOrder,
-} from './zones.js';
+  DEFAULT_LANGUAGE,
+  LANGUAGE_STORAGE_KEY,
+  SUPPORTED_LANGUAGES,
+  detectLanguage,
+  formatDuration,
+  getRandomZoneMessage,
+  getStreakMessage,
+  getTranslation,
+  normalizeLanguage,
+} from './i18n.js';
 import { MascotController } from './mascot.js';
 import { ParticleSystem } from './particles.js';
 import './style.css';
@@ -20,13 +25,13 @@ const STORAGE_KEYS = {
   bestStreak: 'soundlevel_best_streak',
 };
 
-const DEFAULT_MESSAGE = 'Pulsa el micrófono para comenzar a medir 🎤';
-const DEFAULT_MASCOT_MESSAGE = '¡Haz clic en el botón para empezar!';
-const STOPPED_MASCOT_MESSAGE = '¡Hasta la próxima! 👋';
-const LISTENING_MASCOT_MESSAGE = '¡Escuchando... a ver qué tal! 👂';
 const REDUCED_MOTION_QUERY = window.matchMedia('(prefers-reduced-motion: reduce)');
+const HISTORY_LENGTH = 120;
+const ROLLING_BUFFER_SIZE = 30;
+const STREAK_MILESTONES = [10, 30, 60, 120, 180];
 
-// --- DOM elements ---
+const html = document.documentElement;
+const metaDescription = document.querySelector('meta[name="description"]');
 const startBtn = document.getElementById('start-btn');
 const btnIcon = document.getElementById('btn-icon');
 const btnText = document.getElementById('btn-text');
@@ -35,15 +40,25 @@ const meterCtx = meterCanvas.getContext('2d');
 const meterValue = document.getElementById('meter-value');
 const meterGlow = document.getElementById('meter-glow');
 const meterContainer = document.getElementById('meter-container');
+const meterUnit = document.getElementById('meter-unit');
 const messageCard = document.getElementById('message-card');
 const messageText = document.getElementById('message-text');
+const streakLabel = document.getElementById('streak-label');
 const streakValue = document.getElementById('streak-value');
+const bestStreakLabel = document.getElementById('best-streak-label');
 const bestStreakValue = document.getElementById('best-streak-value');
+const historyContainer = document.getElementById('history-container');
+const historyLabel = document.getElementById('history-label');
 const historyCanvas = document.getElementById('history-canvas');
 const historyCtx = historyCanvas.getContext('2d');
 const zoneStrip = document.getElementById('zone-strip');
 const errorMessage = document.getElementById('error-message');
+const errorText = document.getElementById('error-text');
 const app = document.getElementById('app');
+const appSubtitle = document.getElementById('app-subtitle');
+const languageLabel = document.getElementById('language-label');
+const languageSelect = document.getElementById('language-select');
+const mascotContainer = document.getElementById('mascot-container');
 
 const sliderWhisper = document.getElementById('threshold-whisper');
 const sliderBalanced = document.getElementById('threshold-balanced');
@@ -51,11 +66,22 @@ const sliderLoud = document.getElementById('threshold-loud');
 const valWhisper = document.getElementById('val-whisper');
 const valBalanced = document.getElementById('val-balanced');
 const valLoud = document.getElementById('val-loud');
+const thresholdWhisperLabel = document.getElementById('threshold-whisper-label');
+const thresholdBalancedLabel = document.getElementById('threshold-balanced-label');
+const thresholdLoudLabel = document.getElementById('threshold-loud-label');
+const settingsTitle = document.getElementById('settings-title');
 
 const settingsTrigger = document.getElementById('settings-trigger');
 const settingsCard = document.getElementById('settings-card');
 
-// --- State ---
+const zoneLabelElements = {
+  whisper: document.getElementById('zone-label-whisper'),
+  balanced: document.getElementById('zone-label-balanced'),
+  loud: document.getElementById('zone-label-loud'),
+  tooLoud: document.getElementById('zone-label-tooLoud'),
+};
+
+let currentLanguage = DEFAULT_LANGUAGE;
 let isActive = false;
 let currentLevel = 0;
 let smoothedLevel = 0;
@@ -66,30 +92,26 @@ let bestStreak = 0;
 let lastStreakTick = 0;
 let messageTimer = 0;
 let history = [];
+let rollingBuffer = [];
+let lastCelebratedMilestone = 0;
 let particleSystem = null;
 let mascot = null;
 let animationId = null;
 let isSettingsOpen = false;
 
-const HISTORY_LENGTH = 120; // 60 seconds at ~2 entries/sec
-const ROLLING_BUFFER_SIZE = 30;
-const STREAK_MILESTONES = [10, 30, 60, 120, 180];
-
-let rollingBuffer = [];
-let lastCelebratedMilestone = 0;
-
-// --- Init ---
 function init() {
   particleSystem = new ParticleSystem('particles-canvas');
   mascot = new MascotController();
 
   setupCanvas(meterCanvas, meterCtx, 300, 300);
   setupCanvas(historyCanvas, historyCtx, 600, 60);
+  populateLanguageSelect();
 
   startBtn.addEventListener('click', toggleListening);
   settingsTrigger.addEventListener('click', handleSettingsTriggerClick);
   document.addEventListener('click', handleDocumentClick);
   document.addEventListener('keydown', handleDocumentKeydown);
+  languageSelect.addEventListener('change', handleLanguageChange);
   window.addEventListener('beforeunload', destroyApp);
 
   loadThresholds();
@@ -99,11 +121,17 @@ function init() {
   sliderBalanced.addEventListener('input', updateThresholds);
   sliderLoud.addEventListener('input', updateThresholds);
 
+  currentLanguage = getInitialLanguage();
+  languageSelect.value = currentLanguage;
+  applyTranslations();
   updateThresholds();
+
   resetIdleUI({
-    mascotMessage: DEFAULT_MASCOT_MESSAGE,
-    statusMessage: DEFAULT_MESSAGE,
+    mascotMessage: getTranslation(currentLanguage).mascotIdle,
+    statusMessage: getTranslation(currentLanguage).statusIdle,
   });
+
+  registerServiceWorker();
 }
 
 function setupCanvas(canvas, ctx, width, height) {
@@ -113,6 +141,22 @@ function setupCanvas(canvas, ctx, width, height) {
   canvas.style.width = `${width}px`;
   canvas.style.height = `${height}px`;
   ctx.scale(dpr, dpr);
+}
+
+function populateLanguageSelect() {
+  const options = SUPPORTED_LANGUAGES.map(({ code, label }) => {
+    const option = document.createElement('option');
+    option.value = code;
+    option.textContent = label;
+    return option;
+  });
+
+  languageSelect.replaceChildren(...options);
+}
+
+function getInitialLanguage() {
+  const storedLanguage = localStorage.getItem(LANGUAGE_STORAGE_KEY);
+  return storedLanguage ? normalizeLanguage(storedLanguage) : detectLanguage();
 }
 
 function loadThresholds() {
@@ -143,7 +187,65 @@ function loadBestStreak() {
   bestStreakValue.textContent = formatTime(bestStreak);
 }
 
-// --- Settings ---
+function handleLanguageChange(event) {
+  currentLanguage = normalizeLanguage(event.target.value);
+  localStorage.setItem(LANGUAGE_STORAGE_KEY, currentLanguage);
+  applyTranslations();
+
+  if (isActive && currentZone) {
+    const currentMessage = getRandomZoneMessage(currentLanguage, currentZone.id);
+    mascot.setMessage(currentMessage);
+    messageText.textContent = currentMessage;
+    return;
+  }
+
+  resetIdleUI({
+    mascotMessage: getTranslation(currentLanguage).mascotIdle,
+    statusMessage: getTranslation(currentLanguage).statusIdle,
+  });
+}
+
+function applyTranslations() {
+  const translation = getTranslation(currentLanguage);
+
+  html.lang = translation.htmlLang;
+  document.title = translation.title;
+  metaDescription?.setAttribute('content', translation.description);
+
+  languageLabel.textContent = translation.languageLabel;
+  appSubtitle.textContent = translation.appSubtitle;
+  settingsTrigger.setAttribute('aria-label', translation.settingsButtonLabel);
+  settingsCard.setAttribute('aria-label', translation.settingsPanelLabel);
+  settingsTitle.textContent = translation.settingsTitle;
+  thresholdWhisperLabel.textContent = translation.thresholdWhisper;
+  thresholdBalancedLabel.textContent = translation.thresholdBalanced;
+  thresholdLoudLabel.textContent = translation.thresholdLoud;
+  meterUnit.textContent = translation.meterUnit;
+  historyLabel.textContent = translation.historyLabel;
+  streakLabel.textContent = translation.streakLabel;
+  bestStreakLabel.textContent = translation.bestStreakLabel;
+  errorText.textContent = translation.microphoneError;
+
+  zoneStrip.setAttribute('aria-label', translation.zonesAriaLabel);
+  mascotContainer.setAttribute('aria-label', translation.mascotAriaLabel);
+  meterContainer.setAttribute('aria-label', translation.meterAriaLabel);
+  historyContainer.setAttribute('aria-label', translation.historyAriaLabel);
+
+  Object.entries(zoneLabelElements).forEach(([zoneId, element]) => {
+    element.textContent = translation.zoneLabels[zoneId];
+  });
+
+  syncStartButton();
+  streakValue.textContent = formatTime(streakSeconds);
+  bestStreakValue.textContent = formatTime(bestStreak);
+
+  if (!isActive) {
+    messageText.textContent = translation.statusIdle;
+    mascot.setMessage(translation.mascotIdle);
+    drawHistory();
+  }
+}
+
 function handleSettingsTriggerClick(event) {
   event.stopPropagation();
   setSettingsOpen(!isSettingsOpen);
@@ -168,7 +270,6 @@ function setSettingsOpen(isOpen) {
   settingsTrigger.setAttribute('aria-expanded', String(isOpen));
 }
 
-// --- Dynamic thresholds ---
 function updateThresholds() {
   const whisperMax = parseInt(sliderWhisper.value, 10);
   let balancedMax = parseInt(sliderBalanced.value, 10);
@@ -205,7 +306,6 @@ function updateThresholds() {
   }
 }
 
-// --- Listening state ---
 async function toggleListening() {
   if (isActive) {
     stopApp();
@@ -236,8 +336,8 @@ async function toggleListening() {
 
   streakValue.textContent = formatTime(0);
   bestStreakValue.textContent = formatTime(bestStreak);
-  mascot.setMessage(LISTENING_MASCOT_MESSAGE);
-  messageText.textContent = 'Midiendo sonido en tiempo real...';
+  mascot.setMessage(getTranslation(currentLanguage).mascotListening);
+  messageText.textContent = getTranslation(currentLanguage).statusListening;
   messageCard.style.borderLeftColor = '#2979ff';
 
   loop();
@@ -264,8 +364,8 @@ function stopApp() {
   messageTimer = 0;
 
   resetIdleUI({
-    mascotMessage: STOPPED_MASCOT_MESSAGE,
-    statusMessage: DEFAULT_MESSAGE,
+    mascotMessage: getTranslation(currentLanguage).mascotStopped,
+    statusMessage: getTranslation(currentLanguage).statusIdle,
   });
 }
 
@@ -287,13 +387,13 @@ function resetIdleUI({ mascotMessage, statusMessage }) {
 }
 
 function syncStartButton() {
+  const translation = getTranslation(currentLanguage);
   startBtn.setAttribute('aria-pressed', String(isActive));
   btnIcon.textContent = isActive ? '⏹️' : '🎤';
-  btnText.textContent = isActive ? 'Detener' : 'Empezar a medir';
+  btnText.textContent = isActive ? translation.stopButton : translation.startButton;
   startBtn.classList.toggle('active', isActive);
 }
 
-// --- Main loop ---
 function loop() {
   if (!isActive) return;
 
@@ -324,7 +424,7 @@ function loop() {
   messageTimer += 1;
   if (messageTimer > 240 || (previousZone && previousZone.id !== zone.id)) {
     messageTimer = 0;
-    const message = getRandomMessage(zone);
+    const message = getRandomZoneMessage(currentLanguage, zone.id);
     mascot.setMessage(message);
     messageText.textContent = message;
     messageCard.style.borderLeftColor = zone.color;
@@ -365,7 +465,7 @@ function updateStreak(zone) {
         particleSystem.burst(40, [zone.gradientStart, zone.gradientEnd, '#ffea00', '#ffffff']);
       }
 
-      const streakMessage = getStreakMessage(milestone);
+      const streakMessage = getStreakMessage(currentLanguage, milestone);
       mascot.setMessage(streakMessage);
       messageText.textContent = streakMessage;
       break;
@@ -383,7 +483,6 @@ function updateStreak(zone) {
   }
 }
 
-// --- Draw circular meter ---
 function drawMeter(level, color) {
   const width = 300;
   const height = 300;
@@ -462,10 +561,10 @@ function drawMeter(level, color) {
   });
 }
 
-// --- Draw history sparkline ---
 function drawHistory() {
   const width = 600;
   const height = 60;
+  const translation = getTranslation(currentLanguage);
 
   historyCtx.clearRect(0, 0, width, height);
 
@@ -473,7 +572,7 @@ function drawHistory() {
     historyCtx.fillStyle = 'rgba(255,255,255,0.2)';
     historyCtx.font = '12px Outfit, sans-serif';
     historyCtx.textAlign = 'center';
-    historyCtx.fillText('Los datos aparecerán aquí...', width / 2, height / 2 + 4);
+    historyCtx.fillText(translation.historyPlaceholder, width / 2, height / 2 + 4);
     return;
   }
 
@@ -540,7 +639,6 @@ function drawHistory() {
   historyCtx.fill();
 }
 
-// --- Update zone UI ---
 function updateZoneUI(zone) {
   const items = zoneStrip.querySelectorAll('.zone-item');
   items.forEach((item) => {
@@ -553,23 +651,20 @@ function updateZoneUI(zone) {
   document.documentElement.style.setProperty('--zone-glow', zone.bgGlow);
 }
 
-// --- Streak messages ---
-function getStreakMessage(seconds) {
-  if (seconds >= 180) return '🏆🏆🏆 ¡3 MINUTOS! ¡Sois leyendas del silencio! 🏆🏆🏆';
-  if (seconds >= 120) return '🎉🎉 ¡2 MINUTOS en zona ideal! ¡Increíble! 🎉🎉';
-  if (seconds >= 60) return '⭐ ¡1 MINUTO! ¡Sois unos cracks! ⭐';
-  if (seconds >= 30) return '🔥 ¡30 segundos! ¡La racha sigue! 🔥';
-  if (seconds >= 10) return '👏 ¡10 segundos en zona ideal! ¡Seguid así! 👏';
-  return '✨ ¡Gran trabajo! ✨';
+function formatTime(seconds) {
+  return formatDuration(currentLanguage, seconds);
 }
 
-// --- Helpers ---
-function formatTime(seconds) {
-  if (seconds < 60) return `${seconds}s`;
+function registerServiceWorker() {
+  if (!('serviceWorker' in navigator)) return;
 
-  const minutes = Math.floor(seconds / 60);
-  const remainder = seconds % 60;
-  return `${minutes}m ${remainder}s`;
+  window.addEventListener('load', async () => {
+    try {
+      await navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`);
+    } catch (error) {
+      console.error('Service worker registration failed', error);
+    }
+  });
 }
 
 function destroyApp() {

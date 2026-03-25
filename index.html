@@ -7,7 +7,13 @@
     name="description"
     content="Monitor de sonido ambiental para el aula. Mide el ruido en clase de forma divertida y ayuda a los alumnos a autorregularse."
   />
+  <meta name="theme-color" content="#10193f" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <title>🔊 SoundLevel - Monitor de Sonido en Clase</title>
+  <link rel="manifest" href="%BASE_URL%manifest.webmanifest" />
+  <link rel="icon" href="%BASE_URL%favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="%BASE_URL%apple-touch-icon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
@@ -21,43 +27,64 @@
 
     <main class="layout">
       <header class="header">
+        <div class="header-actions header-actions-left">
+          <div class="language-container">
+            <label class="sr-only" id="language-label" for="language-select">Idioma</label>
+            <div class="language-select-wrap">
+              <span class="language-icon" aria-hidden="true">🌍</span>
+              <select class="language-select" id="language-select" aria-labelledby="language-label"></select>
+            </div>
+          </div>
+        </div>
+
+        <div class="header-actions header-actions-right">
+          <div class="settings-container">
+            <button
+              class="settings-trigger"
+              id="settings-trigger"
+              type="button"
+              aria-label="Abrir ajustes de niveles"
+              aria-expanded="false"
+              aria-controls="settings-card"
+            >
+              <span aria-hidden="true">⚙️</span>
+            </button>
+
+            <div class="settings-card" id="settings-card" aria-label="Ajustes de niveles" role="group">
+              <h3 class="settings-title" id="settings-title">Ajuste de Niveles</h3>
+
+              <div class="slider-group">
+                <label for="threshold-whisper">
+                  <span id="threshold-whisper-label">Límite medio</span>
+                  <span id="val-whisper">20</span>
+                </label>
+                <input type="range" id="threshold-whisper" min="5" max="40" value="20" />
+              </div>
+
+              <div class="slider-group">
+                <label for="threshold-balanced">
+                  <span id="threshold-balanced-label">Límite alto</span>
+                  <span id="val-balanced">45</span>
+                </label>
+                <input type="range" id="threshold-balanced" min="25" max="65" value="45" />
+              </div>
+
+              <div class="slider-group">
+                <label for="threshold-loud">
+                  <span id="threshold-loud-label">Límite peligro</span>
+                  <span id="val-loud">70</span>
+                </label>
+                <input type="range" id="threshold-loud" min="50" max="95" value="70" />
+              </div>
+            </div>
+          </div>
+        </div>
+
         <h1 class="app-title">
           <span class="title-icon" aria-hidden="true">🔊</span>
           <span>SoundLevel</span>
         </h1>
-        <p class="app-subtitle">Monitor de Sonido en Clase</p>
-
-        <div class="settings-container">
-          <button
-            class="settings-trigger"
-            id="settings-trigger"
-            type="button"
-            aria-label="Abrir ajustes de niveles"
-            aria-expanded="false"
-            aria-controls="settings-card"
-          >
-            <span aria-hidden="true">⚙️</span>
-          </button>
-
-          <div class="settings-card" id="settings-card" aria-label="Ajustes de niveles" role="group">
-            <h3 class="settings-title">Ajuste de Niveles</h3>
-
-            <div class="slider-group">
-              <label for="threshold-whisper">Límite Medio: <span id="val-whisper">20</span></label>
-              <input type="range" id="threshold-whisper" min="5" max="40" value="20" />
-            </div>
-
-            <div class="slider-group">
-              <label for="threshold-balanced">Límite Alto: <span id="val-balanced">45</span></label>
-              <input type="range" id="threshold-balanced" min="25" max="65" value="45" />
-            </div>
-
-            <div class="slider-group">
-              <label for="threshold-loud">Límite Peligro: <span id="val-loud">70</span></label>
-              <input type="range" id="threshold-loud" min="50" max="95" value="70" />
-            </div>
-          </div>
-        </div>
+        <p class="app-subtitle" id="app-subtitle">Monitor de Sonido en Clase</p>
       </header>
 
       <div class="body-columns">
@@ -65,19 +92,19 @@
           <section class="zone-strip" id="zone-strip" aria-label="Zonas de volumen">
             <div class="zone-item" data-zone="tooLoud">
               <span class="zone-emoji" aria-hidden="true">🔥</span>
-              <span class="zone-label">¡Demasiado!</span>
+              <span class="zone-label" id="zone-label-tooLoud">¡Demasiado!</span>
             </div>
             <div class="zone-item" data-zone="loud">
               <span class="zone-emoji" aria-hidden="true">😬</span>
-              <span class="zone-label">¡Sube!</span>
+              <span class="zone-label" id="zone-label-loud">¡Sube!</span>
             </div>
             <div class="zone-item" data-zone="balanced">
               <span class="zone-emoji" aria-hidden="true">🙂</span>
-              <span class="zone-label">Equilibrio</span>
+              <span class="zone-label" id="zone-label-balanced">Equilibrio</span>
             </div>
             <div class="zone-item" data-zone="whisper">
               <span class="zone-emoji" aria-hidden="true">🤫</span>
-              <span class="zone-label">Susurro</span>
+              <span class="zone-label" id="zone-label-whisper">Susurro</span>
             </div>
           </section>
         </div>
@@ -112,7 +139,7 @@
             <canvas id="meter-canvas" width="300" height="300" aria-hidden="true"></canvas>
             <div class="meter-value-container">
               <span class="meter-value" id="meter-value" aria-live="polite">0</span>
-              <span class="meter-unit">nivel</span>
+              <span class="meter-unit" id="meter-unit">nivel</span>
             </div>
             <div class="meter-glow" id="meter-glow"></div>
           </section>
@@ -123,9 +150,9 @@
           </button>
 
           <div class="history-wrapper">
-            <section class="history-container" aria-label="Historial reciente de niveles">
+            <section class="history-container" id="history-container" aria-label="Historial reciente de niveles">
               <div class="history-header">
-                <span class="history-label">📊 Últimos 60 segundos</span>
+                <span class="history-label" id="history-label">📊 Últimos 60 segundos</span>
               </div>
               <canvas id="history-canvas" width="600" height="60" aria-hidden="true"></canvas>
             </section>
@@ -141,14 +168,14 @@
             <div class="stat-card" id="streak-card">
               <div class="stat-icon" aria-hidden="true">🔥</div>
               <div class="stat-info">
-                <span class="stat-label">Racha en zona ideal</span>
+                <span class="stat-label" id="streak-label">Racha en zona ideal</span>
                 <span class="stat-value" id="streak-value">0s</span>
               </div>
             </div>
             <div class="stat-card" id="best-streak-card">
               <div class="stat-icon" aria-hidden="true">🏆</div>
               <div class="stat-info">
-                <span class="stat-label">Mejor racha</span>
+                <span class="stat-label" id="best-streak-label">Mejor racha</span>
                 <span class="stat-value" id="best-streak-value">0s</span>
               </div>
             </div>
@@ -157,7 +184,7 @@
       </div>
 
       <div class="error-message" id="error-message" style="display:none;" role="alert">
-        <p>⚠️ Necesitamos acceso al micrófono para medir el sonido. Permítelo en tu navegador.</p>
+        <p id="error-text">⚠️ Necesitamos acceso al micrófono para medir el sonido. Permítelo en tu navegador.</p>
       </div>
     </main>
   </div>
