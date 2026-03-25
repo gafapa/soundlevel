@@ -21,6 +21,7 @@ SoundLevel is a client-side single-page application. There is no backend and no 
 - Owns UI state and DOM wiring
 - Starts and stops audio capture
 - Applies threshold settings
+- Controls the custom language picker and its keyboard interaction
 - Updates the sound meter and history canvas
 - Tracks streaks and milestone celebrations
 - Handles settings dropdown interaction and keyboard dismissal

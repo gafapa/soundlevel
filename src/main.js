@@ -57,7 +57,9 @@ const errorText = document.getElementById('error-text');
 const app = document.getElementById('app');
 const appSubtitle = document.getElementById('app-subtitle');
 const languageLabel = document.getElementById('language-label');
-const languageSelect = document.getElementById('language-select');
+const languageTrigger = document.getElementById('language-trigger');
+const languageCurrent = document.getElementById('language-current');
+const languageMenu = document.getElementById('language-menu');
 const mascotContainer = document.getElementById('mascot-container');
 
 const sliderWhisper = document.getElementById('threshold-whisper');
@@ -98,6 +100,7 @@ let particleSystem = null;
 let mascot = null;
 let animationId = null;
 let isSettingsOpen = false;
+let isLanguageMenuOpen = false;
 
 function init() {
   particleSystem = new ParticleSystem('particles-canvas');
@@ -105,13 +108,18 @@ function init() {
 
   setupCanvas(meterCanvas, meterCtx, 300, 300);
   setupCanvas(historyCanvas, historyCtx, 600, 60);
-  populateLanguageSelect();
+
+  currentLanguage = getInitialLanguage();
+  populateLanguageMenu();
 
   startBtn.addEventListener('click', toggleListening);
   settingsTrigger.addEventListener('click', handleSettingsTriggerClick);
+  languageTrigger.addEventListener('click', handleLanguageTriggerClick);
+  languageTrigger.addEventListener('keydown', handleLanguageTriggerKeydown);
+  languageMenu.addEventListener('click', handleLanguageMenuClick);
+  languageMenu.addEventListener('keydown', handleLanguageMenuKeydown);
   document.addEventListener('click', handleDocumentClick);
   document.addEventListener('keydown', handleDocumentKeydown);
-  languageSelect.addEventListener('change', handleLanguageChange);
   window.addEventListener('beforeunload', destroyApp);
 
   loadThresholds();
@@ -121,8 +129,6 @@ function init() {
   sliderBalanced.addEventListener('input', updateThresholds);
   sliderLoud.addEventListener('input', updateThresholds);
 
-  currentLanguage = getInitialLanguage();
-  languageSelect.value = currentLanguage;
   applyTranslations();
   updateThresholds();
 
@@ -143,20 +149,167 @@ function setupCanvas(canvas, ctx, width, height) {
   ctx.scale(dpr, dpr);
 }
 
-function populateLanguageSelect() {
-  const options = SUPPORTED_LANGUAGES.map(({ code, label }) => {
-    const option = document.createElement('option');
-    option.value = code;
-    option.textContent = label;
-    return option;
-  });
-
-  languageSelect.replaceChildren(...options);
-}
-
 function getInitialLanguage() {
   const storedLanguage = localStorage.getItem(LANGUAGE_STORAGE_KEY);
   return storedLanguage ? normalizeLanguage(storedLanguage) : detectLanguage();
+}
+
+function getCurrentLanguageLabel() {
+  return SUPPORTED_LANGUAGES.find(({ code }) => code === currentLanguage)?.label || 'Español';
+}
+
+function populateLanguageMenu() {
+  const options = SUPPORTED_LANGUAGES.map(({ code, label }) => {
+    const option = document.createElement('button');
+    option.type = 'button';
+    option.className = 'language-option';
+    option.dataset.language = code;
+    option.setAttribute('role', 'option');
+    option.setAttribute('aria-selected', String(code === currentLanguage));
+
+    const codeBadge = document.createElement('span');
+    codeBadge.className = 'language-option-code';
+    codeBadge.textContent = code.toUpperCase();
+
+    const labelSpan = document.createElement('span');
+    labelSpan.className = 'language-option-label';
+    labelSpan.textContent = label;
+
+    option.append(codeBadge, labelSpan);
+    return option;
+  });
+
+  languageMenu.replaceChildren(...options);
+  syncLanguageMenu();
+}
+
+function syncLanguageMenu() {
+  languageCurrent.textContent = getCurrentLanguageLabel();
+
+  const options = languageMenu.querySelectorAll('.language-option');
+  options.forEach((option) => {
+    const isSelected = option.dataset.language === currentLanguage;
+    option.classList.toggle('active', isSelected);
+    option.setAttribute('aria-selected', String(isSelected));
+    option.tabIndex = isLanguageMenuOpen ? 0 : -1;
+  });
+}
+
+function focusLanguageOption(languageCode = currentLanguage) {
+  const option = languageMenu.querySelector(`[data-language="${languageCode}"]`);
+  option?.focus();
+}
+
+function setLanguageMenuOpen(isOpen) {
+  isLanguageMenuOpen = isOpen;
+  languageTrigger.classList.toggle('active', isOpen);
+  languageMenu.classList.toggle('show', isOpen);
+  languageTrigger.setAttribute('aria-expanded', String(isOpen));
+  syncLanguageMenu();
+}
+
+function handleLanguageTriggerClick(event) {
+  event.stopPropagation();
+  setSettingsOpen(false);
+  setLanguageMenuOpen(!isLanguageMenuOpen);
+
+  if (isLanguageMenuOpen) {
+    focusLanguageOption();
+  }
+}
+
+function handleLanguageTriggerKeydown(event) {
+  if (!['ArrowDown', 'ArrowUp', 'Enter', ' '].includes(event.key)) {
+    return;
+  }
+
+  event.preventDefault();
+
+  if (!isLanguageMenuOpen) {
+    setSettingsOpen(false);
+    setLanguageMenuOpen(true);
+  }
+
+  if (event.key === 'ArrowUp') {
+    focusLanguageOption(currentLanguage);
+    return;
+  }
+
+  focusLanguageOption(currentLanguage);
+}
+
+function handleLanguageMenuClick(event) {
+  const option = event.target.closest('.language-option');
+  if (!option) return;
+
+  setLanguage(option.dataset.language);
+  setLanguageMenuOpen(false);
+  languageTrigger.focus();
+}
+
+function handleLanguageMenuKeydown(event) {
+  const options = [...languageMenu.querySelectorAll('.language-option')];
+  const currentIndex = options.findIndex((option) => option === document.activeElement);
+
+  if (event.key === 'Escape') {
+    event.preventDefault();
+    setLanguageMenuOpen(false);
+    languageTrigger.focus();
+    return;
+  }
+
+  if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault();
+    const activeOption = document.activeElement.closest('.language-option');
+    if (!activeOption) return;
+    setLanguage(activeOption.dataset.language);
+    setLanguageMenuOpen(false);
+    languageTrigger.focus();
+    return;
+  }
+
+  if (event.key === 'Home') {
+    event.preventDefault();
+    options[0]?.focus();
+    return;
+  }
+
+  if (event.key === 'End') {
+    event.preventDefault();
+    options.at(-1)?.focus();
+    return;
+  }
+
+  if (event.key === 'ArrowDown') {
+    event.preventDefault();
+    const nextIndex = currentIndex < options.length - 1 ? currentIndex + 1 : 0;
+    options[nextIndex]?.focus();
+    return;
+  }
+
+  if (event.key === 'ArrowUp') {
+    event.preventDefault();
+    const nextIndex = currentIndex > 0 ? currentIndex - 1 : options.length - 1;
+    options[nextIndex]?.focus();
+  }
+}
+
+function setLanguage(language) {
+  currentLanguage = normalizeLanguage(language);
+  localStorage.setItem(LANGUAGE_STORAGE_KEY, currentLanguage);
+  applyTranslations();
+
+  if (isActive && currentZone) {
+    const currentMessage = getRandomZoneMessage(currentLanguage, currentZone.id);
+    mascot.setMessage(currentMessage);
+    messageText.textContent = currentMessage;
+    return;
+  }
+
+  resetIdleUI({
+    mascotMessage: getTranslation(currentLanguage).mascotIdle,
+    statusMessage: getTranslation(currentLanguage).statusIdle,
+  });
 }
 
 function loadThresholds() {
@@ -187,24 +340,6 @@ function loadBestStreak() {
   bestStreakValue.textContent = formatTime(bestStreak);
 }
 
-function handleLanguageChange(event) {
-  currentLanguage = normalizeLanguage(event.target.value);
-  localStorage.setItem(LANGUAGE_STORAGE_KEY, currentLanguage);
-  applyTranslations();
-
-  if (isActive && currentZone) {
-    const currentMessage = getRandomZoneMessage(currentLanguage, currentZone.id);
-    mascot.setMessage(currentMessage);
-    messageText.textContent = currentMessage;
-    return;
-  }
-
-  resetIdleUI({
-    mascotMessage: getTranslation(currentLanguage).mascotIdle,
-    statusMessage: getTranslation(currentLanguage).statusIdle,
-  });
-}
-
 function applyTranslations() {
   const translation = getTranslation(currentLanguage);
 
@@ -213,6 +348,7 @@ function applyTranslations() {
   metaDescription?.setAttribute('content', translation.description);
 
   languageLabel.textContent = translation.languageLabel;
+  languageTrigger.setAttribute('aria-label', translation.languageButtonLabel);
   appSubtitle.textContent = translation.appSubtitle;
   settingsTrigger.setAttribute('aria-label', translation.settingsButtonLabel);
   settingsCard.setAttribute('aria-label', translation.settingsPanelLabel);
@@ -235,6 +371,7 @@ function applyTranslations() {
     element.textContent = translation.zoneLabels[zoneId];
   });
 
+  syncLanguageMenu();
   syncStartButton();
   streakValue.textContent = formatTime(streakSeconds);
   bestStreakValue.textContent = formatTime(bestStreak);
@@ -248,19 +385,39 @@ function applyTranslations() {
 
 function handleSettingsTriggerClick(event) {
   event.stopPropagation();
+  setLanguageMenuOpen(false);
   setSettingsOpen(!isSettingsOpen);
 }
 
 function handleDocumentClick(event) {
-  if (!isSettingsOpen) return;
-  if (settingsCard.contains(event.target) || settingsTrigger.contains(event.target)) return;
-  setSettingsOpen(false);
+  if (
+    isSettingsOpen &&
+    !settingsCard.contains(event.target) &&
+    !settingsTrigger.contains(event.target)
+  ) {
+    setSettingsOpen(false);
+  }
+
+  if (
+    isLanguageMenuOpen &&
+    !languageMenu.contains(event.target) &&
+    !languageTrigger.contains(event.target)
+  ) {
+    setLanguageMenuOpen(false);
+  }
 }
 
 function handleDocumentKeydown(event) {
-  if (event.key === 'Escape' && isSettingsOpen) {
+  if (event.key !== 'Escape') return;
+
+  if (isSettingsOpen) {
     setSettingsOpen(false);
     settingsTrigger.focus();
+  }
+
+  if (isLanguageMenuOpen) {
+    setLanguageMenuOpen(false);
+    languageTrigger.focus();
   }
 }
 
@@ -322,6 +479,7 @@ async function toggleListening() {
   syncStartButton();
   errorMessage.style.display = 'none';
   setSettingsOpen(false);
+  setLanguageMenuOpen(false);
 
   streakSeconds = 0;
   currentLevel = 0;

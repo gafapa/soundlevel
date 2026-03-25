@@ -99,7 +99,8 @@ body {
 
 button:focus-visible,
 input[type=range]:focus-visible,
-select:focus-visible {
+.language-option:focus-visible,
+.language-trigger:focus-visible {
   outline: 2px solid rgba(255, 255, 255, 0.85);
   outline-offset: 3px;
 }
@@ -146,17 +147,8 @@ select:focus-visible {
   z-index: 100;
 }
 
-.language-select-wrap {
-  min-height: 44px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 0 12px;
-  background: var(--bg-card);
-  border: 1px solid var(--border-glass);
-  border-radius: var(--radius-full);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+.language-picker {
+  position: relative;
 }
 
 .language-icon {
@@ -164,23 +156,125 @@ select:focus-visible {
   line-height: 1;
 }
 
-.language-select {
+.language-trigger {
   min-height: 44px;
-  border: none;
-  background: transparent;
+  min-width: 180px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-full);
+  background: var(--bg-card);
   color: var(--text-primary);
   font-family: var(--font-family);
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
 }
 
-.language-select option {
-  color: #0a0e27;
+.language-trigger:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.22);
+  box-shadow: 0 8px 20px rgba(5, 10, 28, 0.24);
 }
 
-.language-select:focus {
-  outline: none;
+.language-trigger.active .language-chevron {
+  transform: rotate(180deg);
+}
+
+.language-current {
+  flex: 1;
+  text-align: left;
+}
+
+.language-chevron {
+  color: var(--text-secondary);
+  transition: transform var(--transition-fast);
+}
+
+.language-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  width: 100%;
+  min-width: 220px;
+  padding: 10px;
+  display: grid;
+  gap: 8px;
+  background: rgba(11, 16, 42, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(-8px) scale(0.98);
+  transform-origin: top left;
+  transition: opacity var(--transition-fast), transform var(--transition-fast), visibility var(--transition-fast);
+}
+
+.language-menu.show {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
+}
+
+.language-option {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-primary);
+  font-family: var(--font-family);
+  font-size: 0.92rem;
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
+}
+
+.language-option:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.12);
+  transform: translateY(-1px);
+}
+
+.language-option.active {
+  background: rgba(41, 121, 255, 0.18);
+  border-color: rgba(68, 138, 255, 0.45);
+  box-shadow: inset 0 0 0 1px rgba(68, 138, 255, 0.12);
+}
+
+.language-option-code {
+  min-width: 34px;
+  padding: 3px 7px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-align: center;
+}
+
+.language-option.active .language-option-code {
+  background: rgba(255, 255, 255, 0.14);
+  color: var(--text-primary);
+}
+
+.language-option-label {
+  flex: 1;
 }
 
 .app-title {
@@ -986,9 +1080,19 @@ input[type=range]::-webkit-slider-thumb:hover {
     right: auto;
   }
 
-  .language-select-wrap {
+  .language-picker,
+  .language-trigger {
     width: min(280px, 100%);
-    justify-content: center;
+  }
+
+  .language-menu {
+    left: 50%;
+    transform: translate(-50%, -8px) scale(0.98);
+    transform-origin: top center;
+  }
+
+  .language-menu.show {
+    transform: translate(-50%, 0) scale(1);
   }
 
   .settings-container {

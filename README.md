@@ -57,6 +57,6 @@ npm run preview
 ## Notes
 
 - The user-facing interface is in Spanish.
-- The interface can be switched at runtime through the language selector in the header.
+- The interface can be switched at runtime through a custom accessible language picker in the header.
 - The project uses a local `.npmrc` to prefer the official npm registry for consistent installs and audit support.
 - There is currently no automated test suite; validation is done with `npm run build` and manual browser testing.

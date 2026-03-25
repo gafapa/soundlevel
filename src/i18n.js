@@ -23,6 +23,7 @@ const TRANSLATIONS = {
     description:
       'Monitor de sonido ambiental para el aula. Mide el ruido en clase de forma divertida y ayuda a los alumnos a autorregularse.',
     languageLabel: 'Idioma',
+    languageButtonLabel: 'Seleccionar idioma',
     appSubtitle: 'Monitor de Sonido en Clase',
     settingsButtonLabel: 'Abrir ajustes de niveles',
     settingsPanelLabel: 'Ajustes de niveles',
@@ -55,10 +56,22 @@ const TRANSLATIONS = {
       tooLoud: '¡Demasiado!',
     },
     zoneMessages: {
-      whisper: ['¡Silencio absoluto! ¿Estáis ahí? 👻', '¡Modo ninja activado! 🥷'],
-      balanced: ['¡Perfecto! ¡Nivel ideal para trabajar! 💪', '¡Gran trabajo de equipo! 🤝'],
-      loud: ['¡Ey! ¡Bajemos un poquito! 📢', '¡Vamos a usar voz de interior! 🏠'],
-      tooLoud: ['🚨 ¡ALERTA ROJA! ¡Demasiado ruido! 🚨', '¡Respira hondo y baja el volumen! 🌬️'],
+      whisper: [
+        '¡Silencio absoluto! ¿Estáis ahí? 👻',
+        '¡Modo ninja activado! 🥷',
+      ],
+      balanced: [
+        '¡Perfecto! ¡Nivel ideal para trabajar! 💪',
+        '¡Gran trabajo de equipo! 🤝',
+      ],
+      loud: [
+        '¡Ey! ¡Bajemos un poquito! 📢',
+        '¡Vamos a usar voz de interior! 🏠',
+      ],
+      tooLoud: [
+        '🚨 ¡ALERTA ROJA! ¡Demasiado ruido! 🚨',
+        '¡Respira hondo y baja el volumen! 🌬️',
+      ],
     },
     streakMessages: {
       10: '👏 ¡10 segundos en zona ideal! ¡Seguid así! 👏',
@@ -76,13 +89,14 @@ const TRANSLATIONS = {
     description:
       'Monitor de son ambiental para a aula. Mide o ruído na clase dun xeito divertido e axuda ao alumnado a autorregularse.',
     languageLabel: 'Idioma',
+    languageButtonLabel: 'Seleccionar idioma',
     appSubtitle: 'Monitor de Son na Aula',
     settingsButtonLabel: 'Abrir axustes de niveis',
     settingsPanelLabel: 'Axustes de niveis',
     settingsTitle: 'Axuste de Niveis',
     thresholdWhisper: 'Límite medio',
     thresholdBalanced: 'Límite alto',
-    thresholdLoud: 'Límite perigo',
+    thresholdLoud: 'Límite de perigo',
     startButton: 'Comezar a medir',
     stopButton: 'Deter',
     meterUnit: 'nivel',
@@ -108,10 +122,22 @@ const TRANSLATIONS = {
       tooLoud: 'Demasiado!',
     },
     zoneMessages: {
-      whisper: ['Silencio absoluto! Estades aí? 👻', 'Modo ninja activado! 🥷'],
-      balanced: ['Perfecto! Nivel ideal para traballar! 💪', 'Gran traballo en equipo! 🤝'],
-      loud: ['Ei! Baixemos un chisquiño! 📢', 'Imos usar voz de interior! 🏠'],
-      tooLoud: ['🚨 ALERTA VERMELLA! Demasiado ruído! 🚨', 'Respira fondo e baixa o volume! 🌬️'],
+      whisper: [
+        'Silencio absoluto! Estades aí? 👻',
+        'Modo ninja activado! 🥷',
+      ],
+      balanced: [
+        'Perfecto! Nivel ideal para traballar! 💪',
+        'Gran traballo en equipo! 🤝',
+      ],
+      loud: [
+        'Ei! Baixemos un chisquiño! 📢',
+        'Imos usar voz de interior! 🏠',
+      ],
+      tooLoud: [
+        '🚨 ALERTA VERMELLA! Demasiado ruído! 🚨',
+        'Respira fondo e baixa o volume! 🌬️',
+      ],
     },
     streakMessages: {
       10: '👏 10 segundos en zona ideal! Seguide así! 👏',
@@ -129,6 +155,7 @@ const TRANSLATIONS = {
     description:
       'A classroom sound monitor that measures noise in a playful way and helps students self-regulate.',
     languageLabel: 'Language',
+    languageButtonLabel: 'Select language',
     appSubtitle: 'Classroom Sound Monitor',
     settingsButtonLabel: 'Open level settings',
     settingsPanelLabel: 'Level settings',
@@ -161,10 +188,22 @@ const TRANSLATIONS = {
       tooLoud: 'Way Too Loud',
     },
     zoneMessages: {
-      whisper: ['Absolute silence! Are you even there? 👻', 'Ninja mode activated! 🥷'],
-      balanced: ['Perfect! Ideal level for working! 💪', 'Great teamwork! 🤝'],
-      loud: ['Hey! Let us bring it down a bit! 📢', 'Indoor voices, please! 🏠'],
-      tooLoud: ['🚨 RED ALERT! Too much noise! 🚨', 'Take a breath and bring the volume down! 🌬️'],
+      whisper: [
+        'Absolute silence! Are you even there? 👻',
+        'Ninja mode activated! 🥷',
+      ],
+      balanced: [
+        'Perfect! Ideal level for working! 💪',
+        'Great teamwork! 🤝',
+      ],
+      loud: [
+        'Hey! Let us bring it down a bit! 📢',
+        'Indoor voices, please! 🏠',
+      ],
+      tooLoud: [
+        '🚨 RED ALERT! Too much noise! 🚨',
+        'Take a breath and bring the volume down! 🌬️',
+      ],
     },
     streakMessages: {
       10: '👏 10 seconds in the ideal zone! Keep it up! 👏',
@@ -182,6 +221,7 @@ const TRANSLATIONS = {
     description:
       'Monitor de som ambiente para a sala de aula. Mede o ruído de forma divertida e ajuda os alunos a se autorregularem.',
     languageLabel: 'Idioma',
+    languageButtonLabel: 'Selecionar idioma',
     appSubtitle: 'Monitor de Som na Sala de Aula',
     settingsButtonLabel: 'Abrir ajustes de níveis',
     settingsPanelLabel: 'Ajustes de níveis',
@@ -214,10 +254,22 @@ const TRANSLATIONS = {
       tooLoud: 'Exagerado',
     },
     zoneMessages: {
-      whisper: ['Silêncio total! Tem alguém aí? 👻', 'Modo ninja ativado! 🥷'],
-      balanced: ['Perfeito! Nível ideal para trabalhar! 💪', 'Ótimo trabalho em equipe! 🤝'],
-      loud: ['Ei! Vamos baixar um pouco! 📢', 'Vamos usar voz de sala de aula! 🏠'],
-      tooLoud: ['🚨 ALERTA VERMELHO! Barulho demais! 🚨', 'Respire fundo e abaixe o volume! 🌬️'],
+      whisper: [
+        'Silêncio total! Tem alguém aí? 👻',
+        'Modo ninja ativado! 🥷',
+      ],
+      balanced: [
+        'Perfeito! Nível ideal para trabalhar! 💪',
+        'Ótimo trabalho em equipe! 🤝',
+      ],
+      loud: [
+        'Ei! Vamos baixar um pouco! 📢',
+        'Vamos usar voz de sala de aula! 🏠',
+      ],
+      tooLoud: [
+        '🚨 ALERTA VERMELHO! Barulho demais! 🚨',
+        'Respire fundo e abaixe o volume! 🌬️',
+      ],
     },
     streakMessages: {
       10: '👏 10 segundos na zona ideal! Continuem assim! 👏',
@@ -235,6 +287,7 @@ const TRANSLATIONS = {
     description:
       'Un moniteur sonore pour la classe qui mesure le bruit de façon ludique et aide les élèves à s’autoréguler.',
     languageLabel: 'Langue',
+    languageButtonLabel: 'Choisir la langue',
     appSubtitle: 'Moniteur Sonore pour la Classe',
     settingsButtonLabel: 'Ouvrir les réglages des niveaux',
     settingsPanelLabel: 'Réglages des niveaux',
@@ -267,10 +320,22 @@ const TRANSLATIONS = {
       tooLoud: 'Beaucoup trop fort',
     },
     zoneMessages: {
-      whisper: ['Silence total ! Vous êtes encore là ? 👻', 'Mode ninja activé ! 🥷'],
-      balanced: ['Parfait ! Niveau idéal pour travailler ! 💪', 'Très beau travail d’équipe ! 🤝'],
-      loud: ['Hé ! On baisse un peu le volume ! 📢', 'On garde une voix de classe, s’il vous plaît ! 🏠'],
-      tooLoud: ['🚨 ALERTE ROUGE ! Trop de bruit ! 🚨', 'Respirez un grand coup et baissez le volume ! 🌬️'],
+      whisper: [
+        'Silence total ! Vous êtes encore là ? 👻',
+        'Mode ninja activé ! 🥷',
+      ],
+      balanced: [
+        'Parfait ! Niveau idéal pour travailler ! 💪',
+        'Très beau travail d’équipe ! 🤝',
+      ],
+      loud: [
+        'Hé ! On baisse un peu le volume ! 📢',
+        'On garde une voix de classe, s’il vous plaît ! 🏠',
+      ],
+      tooLoud: [
+        '🚨 ALERTE ROUGE ! Trop de bruit ! 🚨',
+        'Respirez un grand coup et baissez le volume ! 🌬️',
+      ],
     },
     streakMessages: {
       10: '👏 10 secondes en zone idéale ! Continuez ! 👏',
@@ -288,6 +353,7 @@ const TRANSLATIONS = {
     description:
       'Ein Geräuschmonitor für das Klassenzimmer, der Lautstärke spielerisch misst und Schülerinnen und Schülern bei der Selbstregulation hilft.',
     languageLabel: 'Sprache',
+    languageButtonLabel: 'Sprache auswählen',
     appSubtitle: 'Geräuschmonitor fürs Klassenzimmer',
     settingsButtonLabel: 'Pegel-Einstellungen öffnen',
     settingsPanelLabel: 'Pegel-Einstellungen',
@@ -320,10 +386,22 @@ const TRANSLATIONS = {
       tooLoud: 'Viel zu laut',
     },
     zoneMessages: {
-      whisper: ['Absolute Stille! Seid ihr noch da? 👻', 'Ninja-Modus aktiviert! 🥷'],
-      balanced: ['Perfekt! Idealer Pegel zum Arbeiten! 💪', 'Tolles Teamwork! 🤝'],
-      loud: ['Hey! Ein bisschen leiser bitte! 📢', 'Bitte mit Klassenzimmerstimme sprechen! 🏠'],
-      tooLoud: ['🚨 ROTALARM! Viel zu laut! 🚨', 'Tief durchatmen und leiser werden! 🌬️'],
+      whisper: [
+        'Absolute Stille! Seid ihr noch da? 👻',
+        'Ninja-Modus aktiviert! 🥷',
+      ],
+      balanced: [
+        'Perfekt! Idealer Pegel zum Arbeiten! 💪',
+        'Tolles Teamwork! 🤝',
+      ],
+      loud: [
+        'Hey! Ein bisschen leiser bitte! 📢',
+        'Bitte mit Klassenzimmerstimme sprechen! 🏠',
+      ],
+      tooLoud: [
+        '🚨 ROTALARM! Viel zu laut! 🚨',
+        'Tief durchatmen und leiser werden! 🌬️',
+      ],
     },
     streakMessages: {
       10: '👏 10 Sekunden in der Idealzone! Weiter so! 👏',
@@ -341,6 +419,7 @@ const TRANSLATIONS = {
     description:
       'Monitor de so ambiental per a l’aula. Mesura el soroll d’una manera divertida i ajuda l’alumnat a autoregular-se.',
     languageLabel: 'Idioma',
+    languageButtonLabel: 'Seleccionar idioma',
     appSubtitle: 'Monitor de So a l’Aula',
     settingsButtonLabel: 'Obre els ajustos de nivells',
     settingsPanelLabel: 'Ajustos de nivells',
@@ -373,10 +452,22 @@ const TRANSLATIONS = {
       tooLoud: 'Excessiu',
     },
     zoneMessages: {
-      whisper: ['Silenci absolut! Hi sou? 👻', 'Mode ninja activat! 🥷'],
-      balanced: ['Perfecte! Nivell ideal per treballar! 💪', 'Molt bona feina en equip! 🤝'],
-      loud: ['Ep! Baixem una mica! 📢', 'Fem servir veu d’aula, si us plau! 🏠'],
-      tooLoud: ['🚨 ALERTA VERMELLA! Massa soroll! 🚨', 'Respira fons i baixa el volum! 🌬️'],
+      whisper: [
+        'Silenci absolut! Hi sou? 👻',
+        'Mode ninja activat! 🥷',
+      ],
+      balanced: [
+        'Perfecte! Nivell ideal per treballar! 💪',
+        'Molt bona feina en equip! 🤝',
+      ],
+      loud: [
+        'Ep! Baixem una mica! 📢',
+        'Fem servir veu d’aula, si us plau! 🏠',
+      ],
+      tooLoud: [
+        '🚨 ALERTA VERMELLA! Massa soroll! 🚨',
+        'Respira fons i baixa el volum! 🌬️',
+      ],
     },
     streakMessages: {
       10: '👏 10 segons a la zona ideal! Continueu així! 👏',
@@ -394,6 +485,7 @@ const TRANSLATIONS = {
     description:
       'Ikasgelarako giro-soinu monitorea. Zarata modu dibertigarrian neurtzen du eta ikasleei beren burua erregulatzen laguntzen die.',
     languageLabel: 'Hizkuntza',
+    languageButtonLabel: 'Hizkuntza hautatu',
     appSubtitle: 'Ikasgelako Soinu Monitorea',
     settingsButtonLabel: 'Mailen ezarpenak ireki',
     settingsPanelLabel: 'Mailen ezarpenak',
@@ -426,10 +518,22 @@ const TRANSLATIONS = {
       tooLoud: 'Gehiegizkoa',
     },
     zoneMessages: {
-      whisper: ['Isiltasun osoa! Hor al zaudete? 👻', 'Ninja modua aktibatuta! 🥷'],
-      balanced: ['Primeran! Lan egiteko maila egokia! 💪', 'Talde-lan bikaina! 🤝'],
-      loud: ['Aizu! Jaitsi dezagun pixka bat! 📢', 'Ikasgelako ahotsa erabili dezagun! 🏠'],
-      tooLoud: ['🚨 ALERTA GORRIA! Zarata gehiegi! 🚨', 'Arnasa hartu eta bolumena jaitsi! 🌬️'],
+      whisper: [
+        'Isiltasun osoa! Hor al zaudete? 👻',
+        'Ninja modua aktibatuta! 🥷',
+      ],
+      balanced: [
+        'Primeran! Lan egiteko maila egokia! 💪',
+        'Talde-lan bikaina! 🤝',
+      ],
+      loud: [
+        'Aizu! Jaitsi dezagun pixka bat! 📢',
+        'Ikasgelako ahotsa erabili dezagun! 🏠',
+      ],
+      tooLoud: [
+        '🚨 ALERTA GORRIA! Zarata gehiegi! 🚨',
+        'Arnasa hartu eta bolumena jaitsi! 🌬️',
+      ],
     },
     streakMessages: {
       10: '👏 10 segundo eremu idealean! Segi horrela! 👏',
@@ -452,10 +556,14 @@ export function normalizeLanguage(value) {
 
 export function detectLanguage() {
   const browserLanguages = navigator.languages?.length ? navigator.languages : [navigator.language];
+
   for (const browserLanguage of browserLanguages) {
     const normalized = normalizeLanguage(browserLanguage);
-    if (TRANSLATIONS[normalized]) return normalized;
+    if (TRANSLATIONS[normalized]) {
+      return normalized;
+    }
   }
+
   return DEFAULT_LANGUAGE;
 }
 
@@ -464,23 +572,30 @@ export function getTranslation(language) {
 }
 
 export function getRandomZoneMessage(language, zoneId) {
-  const messages = getTranslation(language).zoneMessages[zoneId] || [];
-  return messages[Math.floor(Math.random() * messages.length)] || getTranslation(language).statusListening;
+  const translation = getTranslation(language);
+  const messages = translation.zoneMessages[zoneId] || [];
+  return messages[Math.floor(Math.random() * messages.length)] || translation.statusListening;
 }
 
 export function getStreakMessage(language, seconds) {
   const messages = getTranslation(language).streakMessages;
+
   if (seconds >= 180) return messages[180];
   if (seconds >= 120) return messages[120];
   if (seconds >= 60) return messages[60];
   if (seconds >= 30) return messages[30];
   if (seconds >= 10) return messages[10];
+
   return messages.default;
 }
 
 export function formatDuration(language, seconds) {
   const { second, minute } = getTranslation(language).timeUnits;
-  if (seconds < 60) return `${seconds}${second}`;
+
+  if (seconds < 60) {
+    return `${seconds}${second}`;
+  }
+
   const minutes = Math.floor(seconds / 60);
   const remainder = seconds % 60;
   return `${minutes}${minute} ${remainder}${second}`;

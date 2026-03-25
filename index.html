@@ -29,10 +29,28 @@
       <header class="header">
         <div class="header-actions header-actions-left">
           <div class="language-container">
-            <label class="sr-only" id="language-label" for="language-select">Idioma</label>
-            <div class="language-select-wrap">
-              <span class="language-icon" aria-hidden="true">🌍</span>
-              <select class="language-select" id="language-select" aria-labelledby="language-label"></select>
+            <span class="sr-only" id="language-label">Idioma</span>
+            <div class="language-picker">
+              <button
+                class="language-trigger"
+                id="language-trigger"
+                type="button"
+                aria-labelledby="language-label language-current"
+                aria-haspopup="listbox"
+                aria-expanded="false"
+                aria-controls="language-menu"
+              >
+                <span class="language-icon" aria-hidden="true">🌍</span>
+                <span class="language-current" id="language-current">Español</span>
+                <span class="language-chevron" aria-hidden="true">▾</span>
+              </button>
+              <div
+                class="language-menu"
+                id="language-menu"
+                role="listbox"
+                aria-labelledby="language-label"
+                tabindex="-1"
+              ></div>
             </div>
           </div>
         </div>
