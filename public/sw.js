@@ -1,4 +1,4 @@
-const CACHE_NAME = 'soundlevel-v1';
+const CACHE_NAME = 'soundlevel-v2';
 const APP_SHELL = [
   './',
   './index.html',

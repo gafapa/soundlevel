@@ -4,6 +4,8 @@
 
 SoundLevel is a client-side single-page application. There is no backend and no server-side rendering. Vite is only used as the development server and production bundler.
 
+Production builds are emitted with the `/soundlevel/` base path so the generated HTML, bundled assets, manifest, and service worker resolve correctly when the app is hosted from that subdirectory.
+
 ## Runtime Flow
 
 1. `index.html` loads the application shell and `src/main.js`.
@@ -65,6 +67,11 @@ SoundLevel is a client-side single-page application. There is no backend and no 
 
 - Caches the app shell and same-origin assets at runtime
 - Provides a navigation fallback to the cached root document when offline
+
+### `vite.config.js`
+
+- Uses `/` during local development
+- Uses `/soundlevel/` for production builds so static asset URLs and the manifest work under the deployed subpath
 
 ## State Persistence
 

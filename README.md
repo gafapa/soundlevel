@@ -28,6 +28,8 @@ npm run build
 npm run preview
 ```
 
+The production build is configured for deployment under `/soundlevel/`. If the app is moved to another base path, update `vite.config.js` accordingly before rebuilding.
+
 ## Features
 
 - Real-time microphone capture through the Web Audio API
@@ -53,6 +55,7 @@ npm run preview
 - `src/style.css`: Layout, theme, animations, and responsive styles
 - `public/manifest.webmanifest`: PWA metadata
 - `public/sw.js`: Runtime caching service worker
+- `vite.config.js`: Vite base-path configuration for local development and production deployment
 
 ## Notes
 
